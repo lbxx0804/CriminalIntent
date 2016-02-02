@@ -2,6 +2,8 @@ package net.kboss.criminalintent;
 
 
 
+import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -16,6 +18,7 @@ import android.widget.CompoundButton;
 import android.widget.EditText;
 
 import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.UUID;
 
 /**
@@ -25,6 +28,7 @@ public class CrimeFragment extends Fragment {
 
     public final static String exputKey = "crimeID";
     private  final  static  String DIALOG_DATE = "date";
+    private final static  int REQUEST_DATE = 0;
     private Crime mCrime;
     private EditText mTitleField;
     private Button crime_date;
@@ -69,13 +73,15 @@ public class CrimeFragment extends Fragment {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy年MM月dd日");
         String strDate = sdf.format(mCrime.getmDate());
         crime_date = (Button) view.findViewById(R.id.crime_date);
-        crime_date.setText(strDate);
+        //crime_date.setText(strDate);
+        updateDate();
         //crime_date.setEnabled(false);
         crime_date.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
                 DatePickerFragment dialog =  DatePickerFragment.newInstance(mCrime.getmDate());
+                dialog.setTargetFragment(CrimeFragment.this,REQUEST_DATE);//将Dialog的目标设置为本碎片，进行关联
                 dialog.show(fragmentManager,DIALOG_DATE);
             }
         });
@@ -97,5 +103,20 @@ public class CrimeFragment extends Fragment {
         CrimeFragment crimeFragment = new CrimeFragment();
         crimeFragment.setArguments(args);
         return crimeFragment;
+    }
+
+    @Override
+    public void onActivityResult(int requestCode,int resultCode,Intent data){
+        if (resultCode != Activity.RESULT_OK) return;
+        if ((requestCode == REQUEST_DATE)){
+            Date date = (Date)data.getSerializableExtra(DatePickerFragment.EXTRA_DATE);
+            mCrime.setmDate(date);
+            updateDate();
+        }
+    }
+
+    public  void  updateDate(){
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+        crime_date.setText(simpleDateFormat.format(mCrime.getmDate()));
     }
 }
