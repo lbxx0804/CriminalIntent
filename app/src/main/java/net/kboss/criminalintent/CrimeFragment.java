@@ -1,10 +1,10 @@
 package net.kboss.criminalintent;
 
 
-import android.content.Intent;
+
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
@@ -24,6 +24,7 @@ import java.util.UUID;
 public class CrimeFragment extends Fragment {
 
     public final static String exputKey = "crimeID";
+    private  final  static  String DIALOG_DATE = "date";
     private Crime mCrime;
     private EditText mTitleField;
     private Button crime_date;
@@ -69,7 +70,15 @@ public class CrimeFragment extends Fragment {
         String strDate = sdf.format(mCrime.getmDate());
         crime_date = (Button) view.findViewById(R.id.crime_date);
         crime_date.setText(strDate);
-        crime_date.setEnabled(false);
+        //crime_date.setEnabled(false);
+        crime_date.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+                DatePickerFragment dialog =  DatePickerFragment.newInstance(mCrime.getmDate());
+                dialog.show(fragmentManager,DIALOG_DATE);
+            }
+        });
 
         crime_solved = (CheckBox) view.findViewById(R.id.crime_solved);
         crime_solved.setChecked(mCrime.ismSolved());

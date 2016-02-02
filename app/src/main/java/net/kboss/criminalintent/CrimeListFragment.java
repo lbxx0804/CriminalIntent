@@ -43,7 +43,8 @@ public class CrimeListFragment extends ListFragment {
                // .show();
         //Intent intent = new Intent(getActivity(),CrimeActivity.class);
         //startActivity(intent);
-        CrimeActivity.createNewActivity(getActivity(),c.getmId());
+       // CrimeActivity.createNewActivity(getActivity(),c.getmId());
+        CrimePagerActivity.createNewActivity(getActivity(),c.getmId());
     }
 
     private class CrimeAdapter extends ArrayAdapter<Crime> {
