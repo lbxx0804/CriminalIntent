@@ -1,6 +1,7 @@
 package net.kboss.criminalintent;
 
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -14,14 +15,15 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.UUID;
 
 /**
  * Created by Scan on 2016-02-01.
  */
 public class CrimeFragment extends Fragment {
 
+    public final static String exputKey = "crimeID";
     private Crime mCrime;
     private EditText mTitleField;
     private Button crime_date;
@@ -30,7 +32,14 @@ public class CrimeFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mCrime = new Crime();
+        //Intent intent = getActivity().getIntent();
+        UUID cid = (UUID)  getArguments().getSerializable(exputKey);
+       // UUID cid = (UUID) intent.getSerializableExtra(CrimeActivity.exputKey);
+        if (cid != null) {
+            mCrime = CrimeLab.get(getActivity()).getCrimeByUUID(cid);
+        } else {
+            mCrime = new Crime();
+        }
     }
 
 
@@ -41,12 +50,12 @@ public class CrimeFragment extends Fragment {
         mTitleField.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-                mCrime.setmTitle(s.toString());
+
             }
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-
+                mCrime.setmTitle(s.toString());
             }
 
             @Override
@@ -54,12 +63,16 @@ public class CrimeFragment extends Fragment {
 
             }
         });
+        mTitleField.setText(mCrime.getmTitle());
+
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy年MM月dd日");
         String strDate = sdf.format(mCrime.getmDate());
         crime_date = (Button) view.findViewById(R.id.crime_date);
         crime_date.setText(strDate);
         crime_date.setEnabled(false);
+
         crime_solved = (CheckBox) view.findViewById(R.id.crime_solved);
+        crime_solved.setChecked(mCrime.ismSolved());
         crime_solved.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -67,5 +80,13 @@ public class CrimeFragment extends Fragment {
             }
         });
         return view;
+    }
+
+    public static CrimeFragment newInstance(UUID crimeId) {
+        Bundle args = new Bundle();
+        args.putSerializable(exputKey, crimeId);
+        CrimeFragment crimeFragment = new CrimeFragment();
+        crimeFragment.setArguments(args);
+        return crimeFragment;
     }
 }
