@@ -5,6 +5,8 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -29,6 +31,7 @@ public class CrimeListFragment extends ListFragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true);//需要接收选项菜单方法回调
         getActivity().setTitle("陋习列表");
         mCrimes = CrimeLab.get(getActivity()).getCrimes();
         //ArrayAdapter<Crime> adapter = new ArrayAdapter<Crime>(getActivity(), android.R.layout.simple_list_item_1, mCrimes);
@@ -74,6 +77,32 @@ public class CrimeListFragment extends ListFragment {
     public void onResume() {
         super.onResume();
         ((CrimeAdapter)getListAdapter()).notifyDataSetChanged();//通知进行更新
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+        inflater.inflate(R.menu.fragment_crime_list,menu);
+    }
+
+
+
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        Toast.makeText(getActivity(),"点击新增按钮",Toast.LENGTH_SHORT).show();
+        Log.d("CrimeListFragment","点击新增按钮");
+        switch (item.getItemId()) {
+            case R.id.menu_item_new_crime:
+                Crime crime = new Crime();
+                CrimeLab.get(getActivity()).addCrime(crime);
+                Intent i = new Intent(getActivity(),CrimePagerActivity.class);
+                i.putExtra(CrimeFragment.exputKey,crime.getmId());
+                startActivityForResult(i,0);
+                return true;
+            default:
+            return super.onContextItemSelected(item);
+        }
     }
 }
 

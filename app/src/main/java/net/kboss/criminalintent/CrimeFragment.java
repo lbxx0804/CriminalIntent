@@ -116,7 +116,7 @@ public class CrimeFragment extends Fragment {
     }
 
     public  void  updateDate(){
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
         crime_date.setText(simpleDateFormat.format(mCrime.getmDate()));
     }
 }
