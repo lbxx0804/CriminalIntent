@@ -1,15 +1,20 @@
 package net.kboss.criminalintent;
 
 
-
+import android.annotation.TargetApi;
+import android.app.ActionBar;
 import android.app.Activity;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.app.NavUtils;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -27,8 +32,8 @@ import java.util.UUID;
 public class CrimeFragment extends Fragment {
 
     public final static String exputKey = "crimeID";
-    private  final  static  String DIALOG_DATE = "date";
-    private final static  int REQUEST_DATE = 0;
+    private final static String DIALOG_DATE = "date";
+    private final static int REQUEST_DATE = 0;
     private Crime mCrime;
     private EditText mTitleField;
     private Button crime_date;
@@ -37,9 +42,10 @@ public class CrimeFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true);
         //Intent intent = getActivity().getIntent();
-        UUID cid = (UUID)  getArguments().getSerializable(exputKey);
-       // UUID cid = (UUID) intent.getSerializableExtra(CrimeActivity.exputKey);
+        UUID cid = (UUID) getArguments().getSerializable(exputKey);
+        // UUID cid = (UUID) intent.getSerializableExtra(CrimeActivity.exputKey);
         if (cid != null) {
             mCrime = CrimeLab.get(getActivity()).getCrimeByUUID(cid);
         } else {
@@ -47,10 +53,19 @@ public class CrimeFragment extends Fragment {
         }
     }
 
-
+    @TargetApi(11)
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_crime, container, false);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {//启用向上按钮
+            if (NavUtils.getParentActivityName(getActivity()) != null) {//避免误导用户
+                getActivity().getActionBar().setDisplayHomeAsUpEnabled(true);
+                Activity activity = getActivity();
+
+                ActionBar actionBar = activity.getActionBar();
+                Log.d("CrimeFragment", String.valueOf(actionBar == null));
+            }
+        }
         mTitleField = (EditText) view.findViewById(R.id.crime_title);
         mTitleField.addTextChangedListener(new TextWatcher() {
             @Override
@@ -80,9 +95,9 @@ public class CrimeFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
-                DatePickerFragment dialog =  DatePickerFragment.newInstance(mCrime.getmDate());
-                dialog.setTargetFragment(CrimeFragment.this,REQUEST_DATE);//将Dialog的目标设置为本碎片，进行关联
-                dialog.show(fragmentManager,DIALOG_DATE);
+                DatePickerFragment dialog = DatePickerFragment.newInstance(mCrime.getmDate());
+                dialog.setTargetFragment(CrimeFragment.this, REQUEST_DATE);//将Dialog的目标设置为本碎片，进行关联
+                dialog.show(fragmentManager, DIALOG_DATE);
             }
         });
 
@@ -106,17 +121,37 @@ public class CrimeFragment extends Fragment {
     }
 
     @Override
-    public void onActivityResult(int requestCode,int resultCode,Intent data){
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode != Activity.RESULT_OK) return;
-        if ((requestCode == REQUEST_DATE)){
-            Date date = (Date)data.getSerializableExtra(DatePickerFragment.EXTRA_DATE);
+        if ((requestCode == REQUEST_DATE)) {
+            Date date = (Date) data.getSerializableExtra(DatePickerFragment.EXTRA_DATE);
             mCrime.setmDate(date);
             updateDate();
         }
     }
 
-    public  void  updateDate(){
+    public void updateDate() {
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
         crime_date.setText(simpleDateFormat.format(mCrime.getmDate()));
+    }
+
+    /**
+     * 设置菜单按钮点击回调事件
+     *
+     * @param item
+     * @return
+     */
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                if (NavUtils.getParentActivityName(getActivity()) != null) {
+                    NavUtils.navigateUpFromSameTask(getActivity());
+                }
+                return true;
+
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
 }

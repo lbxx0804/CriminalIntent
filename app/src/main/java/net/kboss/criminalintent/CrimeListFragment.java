@@ -14,7 +14,7 @@ import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
+
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -90,7 +90,7 @@ public class CrimeListFragment extends ListFragment {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        Toast.makeText(getActivity(),"点击新增按钮",Toast.LENGTH_SHORT).show();
+        //Toast.makeText(getActivity(),"点击新增按钮",Toast.LENGTH_SHORT).show();
         Log.d("CrimeListFragment","点击新增按钮");
         switch (item.getItemId()) {
             case R.id.menu_item_new_crime:
@@ -100,6 +100,16 @@ public class CrimeListFragment extends ListFragment {
                 i.putExtra(CrimeFragment.exputKey,crime.getmId());
                 startActivityForResult(i,0);
                 return true;
+            case R.id.menu_item_show_subtitle:
+                if (getActivity().getActionBar().getSubtitle() == null){
+                    getActivity().getActionBar().setSubtitle("子菜单");
+                    item.setTitle("隐藏");
+                }else {
+                    getActivity().getActionBar().setSubtitle(null);
+                    item.setTitle("显示");
+                }
+
+                return  true;
             default:
             return super.onContextItemSelected(item);
         }
