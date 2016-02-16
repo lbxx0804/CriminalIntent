@@ -7,7 +7,7 @@
         android:title="新增"
         app:showAsAction="ifRoom|withText" />
     <item android:id="@+id/menu_item_show_subtitle"
-        android:title="子菜单"
+        android:title="显示"
         app:showAsAction="ifRoom"
         />
 </menu>
