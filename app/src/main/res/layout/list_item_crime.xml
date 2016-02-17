@@ -3,7 +3,8 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:padding="5dp"
-    >
+    android:background="@drawable/background_activated"
+    ><!--设置该属性，用于当选中时，更改颜色-->
     <CheckBox
         android:id="@+id/crime_list_item_solvedCheckBox"
         android:layout_width="wrap_content"

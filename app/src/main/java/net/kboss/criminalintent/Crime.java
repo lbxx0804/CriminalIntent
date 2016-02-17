@@ -15,14 +15,23 @@ public class Crime {
     private Date mDate;
     private boolean mSolved;
 
-    private  static final  String JSON_ID="id";
+    private static final String JSON_ID = "id";
     private static final String JSON_TITLE = "title";
-    private  static final  String JSON_SOLVED = "solved";
-    private static  final String JSON_DATE = "date";
+    private static final String JSON_SOLVED = "solved";
+    private static final String JSON_DATE = "date";
 
     public Crime() {
         this.mId = UUID.randomUUID();
         this.mDate = new Date();
+    }
+
+    public Crime(JSONObject json) throws JSONException {
+        mId = UUID.fromString(json.getString(JSON_ID));
+        if (json.has(JSON_TITLE)){
+            mTitle = json.getString(JSON_TITLE);
+        }
+        mSolved = json.getBoolean(JSON_SOLVED);
+        mDate = new Date(json.getLong(JSON_DATE));
     }
 
     public UUID getmId() {
@@ -53,12 +62,12 @@ public class Crime {
         this.mSolved = mSolved;
     }
 
-    public JSONObject toJSON() throws JSONException{
+    public JSONObject toJSON() throws JSONException {
         JSONObject json = new JSONObject();
-        json.put(JSON_ID,mId.toString());
-        json.put(JSON_TITLE,mTitle);
-        json.put(JSON_SOLVED,mSolved);
-        json.put(JSON_DATE,mDate.getTime());
+        json.put(JSON_ID, mId.toString());
+        json.put(JSON_TITLE, mTitle);
+        json.put(JSON_SOLVED, mSolved);
+        json.put(JSON_DATE, mDate.getTime());
 
         return json;
     }
