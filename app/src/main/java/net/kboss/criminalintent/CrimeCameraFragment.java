@@ -2,6 +2,9 @@ package net.kboss.criminalintent;
 
 
 import android.annotation.TargetApi;
+import android.app.Activity;
+import android.content.Context;
+import android.content.Intent;
 import android.hardware.Camera;
 import android.os.Build;
 import android.os.Bundle;
@@ -15,8 +18,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * Created by Scan on 2016-02-17.
@@ -25,9 +30,54 @@ public class CrimeCameraFragment extends Fragment {
 
     private static final String TAG = "CrimeCameraFragment";
 
+    public  static final String EXTRA_PHOTO_FILENAME = "net.kboss.criminalintent.photo_filename";
+
     private Camera mCamera;
 
     private SurfaceView mSurfaceView;
+
+    private View progressContainer;
+
+    private Camera.ShutterCallback mShutterCallback = new Camera.ShutterCallback() {
+        @Override
+        public void onShutter() {
+            progressContainer.setVisibility(View.VISIBLE);
+        }
+    };
+
+    private Camera.PictureCallback mJpegCallback = new Camera.PictureCallback() {
+        @Override
+        public void onPictureTaken(byte[] data, Camera camera) {
+            String filename = UUID.randomUUID().toString() + ".jpg";
+            FileOutputStream os = null;
+            boolean success = true;
+            try {
+                os = getActivity().openFileOutput(filename, Context.MODE_PRIVATE);
+                os.write(data);
+            } catch (Exception e) {
+                Log.e(TAG, "照片写入文件错误:" + filename, e);
+                success = false;
+            } finally {
+                try {
+                    if (os != null){
+                        os.close();
+                    }
+                }catch (Exception e){
+                    Log.d(TAG,"关闭文件错误："+filename , e);
+                    success = false;
+                }
+            }
+            if (success){//文件成功保存
+               // Log.i(TAG,"JPEG 保存在" + filename);
+                Intent intent = new Intent();
+                intent.putExtra(EXTRA_PHOTO_FILENAME,filename);
+                getActivity().setResult(Activity.RESULT_OK,intent);
+            }else {//被取消
+                getActivity().setResult(Activity.RESULT_CANCELED);
+            }
+            getActivity().finish();
+        }
+    };
 
     @Override
     @SuppressWarnings("deprecation")
@@ -37,7 +87,10 @@ public class CrimeCameraFragment extends Fragment {
         btnTake.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                getActivity().finish();
+                //getActivity().finish();
+                if(mCamera != null){
+                    mCamera.takePicture(mShutterCallback,null,mJpegCallback);
+                }
             }
         });
         mSurfaceView = (SurfaceView) view.findViewById(R.id.crime_camera_surfaceView);
@@ -61,8 +114,10 @@ public class CrimeCameraFragment extends Fragment {
                     return;
                 }
                 Camera.Parameters parameters = mCamera.getParameters();
-                Camera.Size s = getBestSupporedSize(parameters.getSupportedPreviewSizes(),width,height);
+                Camera.Size s = getBestSupporedSize(parameters.getSupportedPreviewSizes(), width, height);
                 parameters.setPreviewSize(s.width, s.height);
+                s = getBestSupporedSize(parameters.getSupportedPictureSizes(),width,height);//设置图片尺寸
+                parameters.setPictureSize(s.width,s.height);
                 try {
                     mCamera.startPreview();//开始预览
                 } catch (Exception e) {
@@ -79,6 +134,8 @@ public class CrimeCameraFragment extends Fragment {
                 }
             }
         });
+        progressContainer = view.findViewById(R.id.crime_camera_progressContainer);
+        progressContainer.setVisibility(View.INVISIBLE);//设置隐藏
         return view;
     }
 
@@ -108,9 +165,9 @@ public class CrimeCameraFragment extends Fragment {
     private Camera.Size getBestSupporedSize(List<Camera.Size> sizes, int width, int height) {
         Camera.Size bestSize = sizes.get(0);
         int largestArea = bestSize.width * bestSize.height;
-        for(Camera.Size s : sizes){
+        for (Camera.Size s : sizes) {
             int area = s.width * s.height;
-            if(area>largestArea){
+            if (area > largestArea) {
                 bestSize = s;
                 largestArea = area;
             }

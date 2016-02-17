@@ -34,15 +34,20 @@ import java.util.UUID;
  */
 public class CrimeFragment extends Fragment {
 
+    private static final String TAG = "CrimeFragment";
+
     public final static String exputKey = "crimeID";
     private final static String DIALOG_DATE = "date";
     private final static int REQUEST_DATE = 0;
+    private static  final  int REQUEST_PHOTO = 1;
     private Crime mCrime;
     private EditText mTitleField;
     private Button crime_date;
     private CheckBox crime_solved;
 
     private ImageButton crime_imageButton;
+
+
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -128,7 +133,8 @@ public class CrimeFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 Intent i = new Intent(getActivity(),CrimeCameraActivity.class);
-                startActivity(i);
+                //startActivity(i);
+                startActivityForResult(i,REQUEST_PHOTO);
             }
         });
 
@@ -150,6 +156,11 @@ public class CrimeFragment extends Fragment {
             Date date = (Date) data.getSerializableExtra(DatePickerFragment.EXTRA_DATE);
             mCrime.setmDate(date);
             updateDate();
+        }else if (requestCode  == REQUEST_PHOTO){
+            String filename = data.getStringExtra(CrimeCameraFragment.EXTRA_PHOTO_FILENAME);
+            if(filename != null){
+                Log.i(TAG,filename);
+            }
         }
     }
 
@@ -177,4 +188,5 @@ public class CrimeFragment extends Fragment {
                 return super.onOptionsItemSelected(item);
         }
     }
+
 }
