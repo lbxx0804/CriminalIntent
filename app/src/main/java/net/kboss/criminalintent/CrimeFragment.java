@@ -5,6 +5,8 @@ import android.annotation.TargetApi;
 import android.app.ActionBar;
 import android.app.Activity;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.hardware.Camera;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -21,6 +23,7 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.ImageButton;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -38,6 +41,8 @@ public class CrimeFragment extends Fragment {
     private EditText mTitleField;
     private Button crime_date;
     private CheckBox crime_solved;
+
+    private ImageButton crime_imageButton;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -109,6 +114,24 @@ public class CrimeFragment extends Fragment {
                 mCrime.setmSolved(isChecked);
             }
         });
+
+        crime_imageButton = (ImageButton)view.findViewById(R.id.crime_imageButton);
+        //检查是否支持摄像机
+        PackageManager packageManager = getActivity().getPackageManager();
+        boolean hasACamera = packageManager.hasSystemFeature(PackageManager.FEATURE_CAMERA)
+                ||packageManager.hasSystemFeature(PackageManager.FEATURE_CAMERA_FRONT)||
+                Build.VERSION.SDK_INT < Build.VERSION_CODES.GINGERBREAD || Camera.getNumberOfCameras()>0;
+        if(!hasACamera){
+            crime_imageButton.setEnabled(false);
+        }
+        crime_imageButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent i = new Intent(getActivity(),CrimeCameraActivity.class);
+                startActivity(i);
+            }
+        });
+
         return view;
     }
 
