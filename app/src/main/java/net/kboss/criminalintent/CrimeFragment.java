@@ -159,7 +159,9 @@ public class CrimeFragment extends Fragment {
         }else if (requestCode  == REQUEST_PHOTO){
             String filename = data.getStringExtra(CrimeCameraFragment.EXTRA_PHOTO_FILENAME);
             if(filename != null){
-                Log.i(TAG,filename);
+                //Log.i(TAG,filename);
+                Photo photo = new Photo(filename);
+                mCrime.setPhoto(photo);
             }
         }
     }
