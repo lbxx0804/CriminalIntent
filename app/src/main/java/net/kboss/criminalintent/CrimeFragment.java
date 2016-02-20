@@ -6,7 +6,9 @@ import android.app.ActionBar;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.drawable.BitmapDrawable;
 import android.hardware.Camera;
+import android.media.Image;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -24,6 +26,7 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -46,6 +49,8 @@ public class CrimeFragment extends Fragment {
     private CheckBox crime_solved;
 
     private ImageButton crime_imageButton;
+
+    private ImageView imageViewPhoto;
 
 
 
@@ -138,6 +143,8 @@ public class CrimeFragment extends Fragment {
             }
         });
 
+        imageViewPhoto = (ImageView)view.findViewById(R.id.crimeImageView);
+
         return view;
     }
 
@@ -162,6 +169,7 @@ public class CrimeFragment extends Fragment {
                 //Log.i(TAG,filename);
                 Photo photo = new Photo(filename);
                 mCrime.setPhoto(photo);
+                showPhoto();
             }
         }
     }
@@ -191,4 +199,29 @@ public class CrimeFragment extends Fragment {
         }
     }
 
+    /**
+     * 将图片显示在ImageView上面
+     */
+    private void showPhoto(){
+        Photo photo = mCrime.getPhoto();
+        BitmapDrawable bitmapDrawable = null;
+        if (photo != null){
+            String path = getActivity().getFileStreamPath(photo.getFileName()).getAbsolutePath();
+            bitmapDrawable = PictureUtils.getScaledDrawable(getActivity(),path);
+            imageViewPhoto.setImageDrawable(bitmapDrawable);
+        }
+
+    }
+
+    @Override
+    public void onStart(){
+        super.onStart();
+        showPhoto();//显示照片
+    }
+
+    @Override
+    public void onStop(){
+        super.onStop();
+        PictureUtils.cleanImageView(imageViewPhoto);//清理bitmapDrawable
+    }
 }
